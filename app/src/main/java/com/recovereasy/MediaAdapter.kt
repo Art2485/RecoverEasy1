@@ -1,7 +1,6 @@
 package com.recovereasy
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -10,34 +9,33 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 
-class MediaAdapter :
-    ListAdapter<MediaItem, MediaAdapter.VH>(DIFF) {
+data class MediaItem(val name: String, val size: String, val thumbnail: String?)
+
+class MediaAdapter : ListAdapter<MediaItem, MediaAdapter.VH>(DIFF) {
 
     companion object {
         private val DIFF = object : DiffUtil.ItemCallback<MediaItem>() {
-            override fun areItemsTheSame(a: MediaItem, b: MediaItem) = a.uri == b.uri
-            override fun areContentsTheSame(a: MediaItem, b: MediaItem) = a == b
+            override fun areItemsTheSame(o: MediaItem, n: MediaItem) = o.name == n.name
+            override fun areContentsTheSame(o: MediaItem, n: MediaItem) = o == n
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val v = LayoutInflater.from(parent.context)
-            .inflate(R.layout.row_media_item, parent, false)
-        return VH(v)
-    }
+    inner class VH(parent: ViewGroup) : RecyclerView.ViewHolder(
+        LayoutInflater.from(parent.context).inflate(R.layout.item_media, parent, false)
+    ) {
+        private val thumb = itemView.findViewById<ImageView>(R.id.thumb)
+        private val title = itemView.findViewById<TextView>(R.id.title)
+        private val size = itemView.findViewById<TextView>(R.id.size)
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.bind(getItem(position))
-    }
-
-    class VH(view: View) : RecyclerView.ViewHolder(view) {
-        private val thumb: ImageView = view.findViewById(R.id.thumb)
-        private val name: TextView = view.findViewById(R.id.name)
         fun bind(item: MediaItem) {
-            name.text = item.name
-            thumb.load(item.uri) {
-                crossfade(true)
-            }
+            title.text = item.name
+            size.text = item.size
+            item.thumbnail?.let { url ->
+                thumb.load(url) { crossfade(true) }
+            } ?: thumb.setImageDrawable(null)
         }
     }
-    }
+
+    override fun onCreateViewHolder(p: ViewGroup, v: Int) = VH(p)
+    override fun onBindViewHolder(h: VH, pos: Int) = h.bind(getItem(pos))
+}
