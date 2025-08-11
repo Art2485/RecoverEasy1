@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">RecoverEasy</string>
+    <string name="permission_rationale">แอพต้องการสิทธิ์เพื่ออ่านมีเดียในเครื่อง</string>
+</resources>
