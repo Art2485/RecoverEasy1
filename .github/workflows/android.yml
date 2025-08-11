@@ -22,9 +22,14 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install SDK packages
-        run: |
-          sdkmanager --install "platform-tools" "build-tools;34.0.0" "platforms;android-34" --licenses
+      - name: Accept Android licenses
+        run: yes | sdkmanager --licenses
+
+      - name: Install SDK components
+        run: sdkmanager --install "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Create local.properties (sdk.dir)
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" >> local.properties
 
       - name: Build Debug APK
         uses: gradle/gradle-build-action@v2
