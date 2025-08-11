@@ -2,4 +2,8 @@ package com.recovereasy
 
 import android.net.Uri
 
-data class MediaItem(val name: String, val uri: Uri)
+data class MediaItem(
+    val uri: Uri,
+    val name: String,
+    val size: Long
+)
