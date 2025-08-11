@@ -1,6 +1,7 @@
 package com.recovereasy
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -9,33 +10,33 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 
-data class MediaItem(val name: String, val size: String, val thumbnail: String?)
-
 class MediaAdapter : ListAdapter<MediaItem, MediaAdapter.VH>(DIFF) {
 
     companion object {
         private val DIFF = object : DiffUtil.ItemCallback<MediaItem>() {
-            override fun areItemsTheSame(o: MediaItem, n: MediaItem) = o.name == n.name
-            override fun areContentsTheSame(o: MediaItem, n: MediaItem) = o == n
+            override fun areItemsTheSame(oldItem: MediaItem, newItem: MediaItem) =
+                oldItem.uri == newItem.uri
+            override fun areContentsTheSame(oldItem: MediaItem, newItem: MediaItem) =
+                oldItem == newItem
         }
     }
 
-    inner class VH(parent: ViewGroup) : RecyclerView.ViewHolder(
-        LayoutInflater.from(parent.context).inflate(R.layout.item_media, parent, false)
-    ) {
-        private val thumb = itemView.findViewById<ImageView>(R.id.thumb)
-        private val title = itemView.findViewById<TextView>(R.id.title)
-        private val size = itemView.findViewById<TextView>(R.id.size)
-
-        fun bind(item: MediaItem) {
-            title.text = item.name
-            size.text = item.size
-            item.thumbnail?.let { url ->
-                thumb.load(url) { crossfade(true) }
-            } ?: thumb.setImageDrawable(null)
-        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        val v = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_media, parent, false)
+        return VH(v)
     }
 
-    override fun onCreateViewHolder(p: ViewGroup, v: Int) = VH(p)
-    override fun onBindViewHolder(h: VH, pos: Int) = h.bind(getItem(pos))
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        val item = getItem(position)
+        holder.name.text = item.name
+        holder.size.text = item.size.toString()
+        holder.thumb.load(item.uri) { crossfade(true) }
+    }
+
+    class VH(v: View) : RecyclerView.ViewHolder(v) {
+        val name: TextView = v.findViewById(R.id.nameText)
+        val size: TextView = v.findViewById(R.id.sizeText)
+        val thumb: ImageView = v.findViewById(R.id.thumb)
+    }
 }
